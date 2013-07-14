@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Interactive Dashboard</title>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<script type="text/javascript">
+
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['table', 'corechart']});
+      var actual_data = {{data|safe}};
+      var x = 0;
+      var y = 0;
+      var calculated_data = [];
+      W1 = W2 = 100;
+      var set_data = function(W1,W2){
+        calculated_data = [];
+      	actual_data.every(function(row){
+      		var xn = W1*[row.fields.fieldd/[row.fields.fielde + Math.log(row.fields.fieldb*row.fields.fieldc)]] + [Math.pow(row.fields.fieldf,2)]/row.fields.fieldc;
+          x += xn;
+          var yn =  W1*[row.fields.fielde/[row.fields.fieldd + Math.log(row.fields.fieldb/row.fields.fieldc)]] + [Math.pow(row.fields.fieldc,2)]/row.fields.fieldf;
+          y += yn;
+          calculated_data.push([row.fields.fielda, xn, yn]);
+          return true;
+      	})
+      };
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(function(){
+        set_data(W1,W2);
+        drawtable();
+        drawbarandpie();
+      });
+
+      function drawtable() {
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'A');
+        data.addColumn('number', 'Xn');
+        data.addColumn('number', 'Yn');
+        data.addRows(calculated_data);
+
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(data, {showRowNumber: true});
+      };
+
+      function drawbarandpie(){
+          var data1 = google.visualization.arrayToDataTable([
+            ['data', 'x','y'],
+            [10 ,x/100, y/100]
+          ]);
+
+          var data2 = google.visualization.arrayToDataTable([
+            ['item','percentage'],
+            ['x', x/(x+y)],
+            ['y', y/(x+y)]
+          ]);
+          new google.visualization.PieChart(document.getElementById('pie_div')).draw(data2);
+          new google.visualization.BarChart(document.getElementById('bar_div')).draw(data1);
+      };
+
+    </script>
+</head>
+<body>
+	<div id="table_div" style="width: 600px; height: 700px; float:left"></div>
+  <div style="padding-right:250px;float:right">
+    x1:<select class="w1value">
+      <option name='w1' selected=selected value=100>100</option>
+      <option name='w1' value=200>200</option>
+      <option name='w1' value=300>300</option>
+    </select>
+    x2:<select class="w2value">
+      <option name='w2' selected=selected value=100>100</option>
+      <option name='w2' value=200>200</option>
+      <option name='w2' value=300>300</option>
+    </select>
+    <button class="submit">Submit</button>
+  </div>
+  <div id="bar_div" style="width: 500px; height: 400px;float:right"></div>
+  <div id="pie_div" style="width: 600px; height: 400px; float:right"></div>
+  <script type="text/javascript">
+  var w1,w2;
+    $('.w1value,.w2value').change(function(){
+        w1 = parseInt($('.w1value option:selected').val());
+        w2 = parseInt($('.w2value option:selected').val());
+        set_data(w1,w2);
+        drawtable();
+        drawbarandpie();
+    });
+    $('.submit').click(function(){
+      $.ajax({
+        type: 'POST',
+        url: '/graph/',
+        data: {'data': JSON.stringify(calculated_data)}
+      }).done(function() {
+        alert( "Data Saved: " + msg );
+      });
+    });
+  </script>
+</body>
+</html>
