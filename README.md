@@ -13,5 +13,6 @@ d) There is a drop down to change the input values , that changes the graphs and
 
 e) Atlast, saves the values in another table.
 
+The app is live at http://centrino.herokuapp.com. Please have a look. :)
 
 

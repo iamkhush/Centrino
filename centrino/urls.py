@@ -6,10 +6,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    url(r'^$', 'dashboard.views.home', name='home'),
+	url(r'^$', 'dashboard.views.home', name='home'),
     url(r'graph/$', 'dashboard.views.showgraph', name='graph'),
-    # url(r'^centrino/', include('centrino.foo.urls')),
+    url(r'flexi/$', 'dashboard.views.testform', name='graph'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
@@ -19,5 +18,6 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('',
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+    (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+    	{'document_root': settings.STATIC_ROOT}),
 )

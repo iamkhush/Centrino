@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flexi test</title>
+	<link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Save and Continue!!!</h1>
+		<form method="POST">
+			{% csrf_token %}
+			{{ form }}
+			<button class="btn" name="continue">Continue</button>
+			<button type="submit" class="btn" name="save">Save</button>
+		</form>
+	</div>
+	<h1>To remove the db instance go to <a href="/admin/dashboard/fleximodel/">here</a> with user: a and pass: a and remove the 1st instance.</h1>
+</body>
+</html>

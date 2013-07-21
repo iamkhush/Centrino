@@ -2,12 +2,13 @@ import csv
 import json
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
+import copy
 
-from .models import dashboard as dashboard_model, submitteddata
-from .forms import dashboard as dashboard_form
+from .models import dashboard as dashboard_model, submitteddata, fleximodel
+from .forms import dashboard as dashboard_form, flexitest
 
 def home(request):
 	form = dashboard_form(
@@ -35,4 +36,26 @@ def showgraph(request):
 		return HttpResponseRedirect('/')
 	data = serializers.serialize('json', dashboard_model.objects.all())
 	return render_to_response('graph.html', {'data':data}, context_instance=RequestContext(request))
+
+
+def testform(request):
+	if request.method == 'GET':
+		a = fleximodel.objects.exclude(temp_data__isnull=True)
+		form = flexitest()
+		if a:
+			data = json.loads(a[0].temp_data)
+			form.initial=data
+		return render_to_response('flexi.html', {'form':form}, context_instance=RequestContext(request))
+	if 'continue' in request.POST:
+		req_dup = request.POST.copy()
+		del req_dup['csrfmiddlewaretoken']
+		del req_dup['continue']
+		data = json.dumps(req_dup)
+		fleximodel(temp_data = data).save()
+		return HttpResponse('You can go and have fun now.Click <a href="/flexi">here</a> to go back.')
+	form = flexitest(request.POST)
+	if form.is_valid():
+		return HttpResponse('Awesome form validated')
+	return render_to_response('flexi.html', {'form':form}, context_instance=RequestContext(request))
+
 
